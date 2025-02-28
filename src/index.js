@@ -1,8 +1,11 @@
 import express from "express";
+import config from "./config/env.js"
 import { engine } from "express-handlebars"
 import cookieParser from "cookie-parser";
 import passport from "passport";
-import initializePassport from "./config/passport.config.js";
+import initializePassport from "./middlewares/passportMiddleware.js";
+import productRoutes from "./routes/products.routes.js"
+import cartRoutes from "./routes/carts.routes.js"
 import userRoutes from './routes/users.routes.js'
 import viewRoutes from "./routes/views.routes.js";
 import connectDb from "./config/database.js";
@@ -11,8 +14,9 @@ const signCookie = "sign-cookie";
 
 //settings
 const app = express();
-app.set("PORT", 3000);
-const URL = "mongodb+srv://enzo:1234@cluster0.bkbia.mongodb.net/test";
+/*app.set("PORT", 3000);*/
+app.set("PORT", config.port || 3000)
+/*const URL = "mongodb+srv://enzo:1234@cluster0.bkbia.mongodb.net/test";*/
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", "./src/views");
@@ -30,10 +34,12 @@ app.use(passport.initialize());
 app.get("/", (req, res) => {
     res.json({ title: "Home Page" });
 });
+app.use('/api/carts',cartRoutes)
+app.use('/api/products',productRoutes)
 app.use('/api/users',userRoutes)
 app.use('/', viewRoutes);
 //listeners
-connectDb(URL);
+connectDb(config.mongodb_url);
 app.listen(app.get("PORT"), () => {
   console.log(`Server on port ${app.get("PORT")}`);
 });
