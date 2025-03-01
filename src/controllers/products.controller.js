@@ -1,8 +1,9 @@
-import productModel from "../models/products.model.js";
+import productsService from "../services/products.service.js";
 
 const getProductsAll =  async (req, res) => {
     try {
-        const products = await productModel.find();
+        /*const products = await productModel.find();*/
+        const products = await productsService.getProductsAll();
 
         if (products.length === 0) {
         return res.status(404).json({ status: "Error", message: "No se encontraron productos" });
@@ -36,7 +37,7 @@ const createProduct = async (req, res) => {
         thumbnail: thumbnail || "", // Si no hay thumbnail, se asigna una cadena vacía
       };
 
-const product = await productModel.create(newProduct);
+const product = await productsService.createProduct(newProduct);
 
       // Enviar la respuesta con el producto creado
       return res.status(201).json({
@@ -69,7 +70,8 @@ const product = await productModel.create(newProduct);
       }
   
       // Buscar el producto por ID
-      const product = await productModel.findById(id);
+      /*const product = await productModel.findById(id);*/
+      const product = await productsService.getProductById(id);
       
       // Si el producto no existe, devolver un error 404
       if (!product) {
@@ -78,24 +80,26 @@ const product = await productModel.create(newProduct);
           message: "Producto no encontrado",
         });
       }
+
+      const updatedFields = {
+        title: title || product.title,
+        description: description || product.description,
+        code: code || product.code,
+        price: price || product.price,
+        status: status !== undefined ? status : product.status, // Si status no se pasa, mantener el actual
+        stock: stock || product.stock,
+        category: category || product.category,
+        thumbnail: thumbnail || product.thumbnail,
+    };
   
-      // Actualizar solo los campos proporcionados en el cuerpo de la solicitud
-      product.title = title || product.title;
-      product.description = description || product.description;
-      product.code = code || product.code;
-      product.price = price || product.price;
-      product.status = status !== undefined ? status : product.status;  // Si status no se pasa, se mantiene el actual
-      product.stock = stock || product.stock;
-      product.category = category || product.category;
-      product.thumbnail = thumbnail || product.thumbnail;
-  
-await productModel.create(newProduct);
+/*await productModel.create(newProduct);*/
+const updatedProduct = await productsService.updateProduct(id, updatedFields);
   
       // Enviar una respuesta exitosa con el producto actualizado
       return res.status(200).json({
         status: "Success",
         message: "Producto actualizado con éxito",
-        product: newProduct,
+        product: updatedProduct,
       });
     } catch (error) {
       // Manejo de errores generales
@@ -113,7 +117,7 @@ await productModel.create(newProduct);
   
     try {
       // Buscar el producto por su ID y eliminarlo
-      const product = await productModel.findByIdAndDelete(id);
+      const product = await productsService.deleteProduct(id);
   
       // Si el producto no existe, devolver un error
       if (!product) {

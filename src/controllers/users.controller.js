@@ -1,9 +1,9 @@
-import usersModel from "../models/users.model.js";
 import { isValidPassword, createHash, createToken, verifyToken } from "../utils/index.js";
+import usersService from "../services/users.service.js";
 
 const getUsersAll =  async (req, res) => {
     try {
-        const users = await usersModel.find();
+        const users = await usersService.getUsersAll();
 
         if (users.length === 0) {
         return res.status(404).json({ status: "Error", message: "No se encontraron usuarios" });
@@ -42,10 +42,14 @@ const createUser = async (req, res) => {
     if (role) newUser.role = role;
 
     // Guardar el usuario en la base de datos
-    await usersModel.create(newUser);
+    await usersService.createUser(newUser);
 
     // Redirigir al login después del registro exitoso
-    res.redirect("/login");
+    res.status(201).json({
+        status: "Success",
+        message: "Usuario creado exitosamente",
+        user: newUser,
+    });
     } catch (error) {
     // Manejar errores de duplicación de email (código 11000 de MongoDB)
     if (error.code === 11000) {
@@ -64,7 +68,7 @@ const userLogin = async (req, res) => {
             return res.status(400).json({ status: "error", message: "Todos los campos son obligatorios" });
         }
 
-        const userFound = await usersModel.findOne({ email });
+        const userFound = await usersService.userLogin(email);
 
         if (!userFound) {
             return res.status(404).json({ status: "error", message: "Usuario no encontrado" });
@@ -92,7 +96,7 @@ const userLogin = async (req, res) => {
 const getCurrentUser = (req, res) => {
     try {
         const user = { ...req.user._doc };
-      res.status(200).json({ user });  // Enviar la respuesta como JSON
+        res.status(200).json({ user });  
     } catch (error) {
         console.error('Error al procesar la solicitud del usuario actual:', error);
         res.status(500).json({ message: 'Hubo un error al procesar tu solicitud. Por favor, intenta nuevamente más tarde.' });

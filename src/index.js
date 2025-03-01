@@ -14,9 +14,7 @@ const signCookie = "sign-cookie";
 
 //settings
 const app = express();
-/*app.set("PORT", 3000);*/
 app.set("PORT", config.port || 3000)
-/*const URL = "mongodb+srv://enzo:1234@cluster0.bkbia.mongodb.net/test";*/
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", "./src/views");
