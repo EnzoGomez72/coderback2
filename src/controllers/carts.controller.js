@@ -1,7 +1,7 @@
-import cartModel from "../models/carts.model.js";
-import productModel from "../models/products.model.js";
 import cartsService from "../services/carts.service.js";
 import productsService from "../services/products.service.js";
+import usersService from "../services/users.service.js";
+import ticketsService from "../services/tickets.service.js";
 
 const createCart = async (req, res) => {
     try {
@@ -22,20 +22,22 @@ const createCart = async (req, res) => {
     }
 };
 
-const addProductToCart = async (req, res) => {
-    const { cid, pid } = req.params; // Extraemos los parámetros de la URL
-    const { quantity } = req.body; // Extraemos la cantidad del cuerpo de la solicitud
+  const addProductToCart = async (req, res) => {
+    const { pid } = req.params;
+    const { quantity } = req.body;
+    const userId = req.user._id;
   
     try {
-      // Verificar si el carrito existe
-      const cart = await cartsService.getCartById(cid);
-      if (!cart) {
-        return res.status(404).json({
-          status: "Error",
-          message: "Carrito no encontrado",
-        });
+      const user = await usersService.getUserById(userId);
+      if (!user || !user.cart) {
+          return res.status(404).json({ status: "Error", message: "El usuario no tiene un carrito asignado" });
       }
-  
+
+      const cart = await cartsService.getCartById(user.cart);
+      if (!cart) {
+          return res.status(404).json({ status: "Error", message: "Carrito no encontrado" });
+      }
+
       // Verificar si el producto existe
       const product = await productsService.getProductById(pid);
       if (!product) {
@@ -90,7 +92,7 @@ const getCartById = async (req, res) => {
     const { cid } = req.params;
 
     try {
-        const cart = await cartModel.findById(cid).populate("products.product");
+        const cart = await cartsService.getCartById(cid);
         if (!cart) {
             return res.status(404).json({
                 status: "Error",
@@ -113,7 +115,7 @@ const getCartById = async (req, res) => {
 };
 
 // Eliminar un carrito por ID
-const deleteCartById = async (req, res) => {
+/*const deleteCartById = async (req, res) => {
     const { cid } = req.params;
 
     try {
@@ -137,6 +139,72 @@ const deleteCartById = async (req, res) => {
             error: error.message
         });
     }
+};*/
+
+const purchaseCart = async (req, res) => {
+  const { cid } = req.params;
+  const userId = req.user._id; // Obtener el usuario autenticado
+
+  try {
+      // Obtener el carrito del usuario
+      const cart = await cartsService.getCartById(cid);
+      if (!cart) {
+          return res.status(404).json({ status: "Error", message: "Carrito no encontrado" });
+      }
+
+      let totalAmount = 0;
+      const purchasedProducts = [];
+      const failedProducts = [];
+
+      // Iterar sobre los productos del carrito
+      for (let item of cart.products) {
+          const product = await productsService.getProductById(item.product);
+          if (!product) {
+              failedProducts.push(item.product);
+              continue;
+          }
+
+          if (product.stock >= item.quantity) {
+              // Si hay stock suficiente, restar del stock y agregar al ticket
+              product.stock -= item.quantity;
+              await product.save();
+              totalAmount += product.price * item.quantity;
+              purchasedProducts.push({
+                  product: item.product,
+                  quantity: item.quantity,
+                  price: product.price
+              });
+          } else {
+              // Si no hay stock suficiente, se agrega a la lista de fallidos
+              failedProducts.push(item.product);
+          }
+      }
+
+      // Crear un ticket solo si hubo productos comprados
+      let ticket = null;
+      if (purchasedProducts.length > 0) {
+          ticket = await ticketsService.createTicket({
+              amount: totalAmount,
+              purchaser: req.user.email // Usamos el email del usuario autenticado
+          });
+      }
+
+      // Filtrar los productos no comprados y actualizar el carrito
+      cart.products = cart.products.filter(item => failedProducts.includes(item.product));
+      await cart.save();
+
+      // Respuesta con el ticket y los productos no procesados
+      res.status(200).json({
+          status: "Success",
+          message: "Compra procesada",
+          ticket,
+          failedProducts
+      });
+
+  } catch (error) {
+      console.error("Error en la compra:", error);
+      res.status(500).json({ status: "Error", message: "Hubo un error al procesar la compra", error: error.message });
+  }
 };
 
-export default { createCart, addProductToCart, getCartById, deleteCartById };
+export default { createCart, addProductToCart, getCartById, purchaseCart };

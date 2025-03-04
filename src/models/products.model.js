@@ -63,8 +63,6 @@ const productSchema = new Schema({
     versionKey: false, // Elimina el campo __v de versión
 });
 
-/*export default model("Products", productSchema);*/
-
 const ProductModel = model("products", productSchema);
 
 export default ProductModel;

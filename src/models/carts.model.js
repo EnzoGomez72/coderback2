@@ -21,7 +21,6 @@ const cartSchema = new Schema({
     versionKey: false, // Elimina el campo __v de versión
 });
 
-
 const CartModel = model("cart", cartSchema);
 
 export default CartModel;

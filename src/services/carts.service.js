@@ -1,7 +1,7 @@
 import cartModel from "../models/carts.model.js";
 
 const createCart = async () => {
-    const newCart = new cartModel({ products: [] }); // Inicializamos el carrito vacío
+    const newCart = new cartModel({ products: [] });
     return await newCart.save();
 };
 

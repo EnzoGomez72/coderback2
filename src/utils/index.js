@@ -1,6 +1,7 @@
 import { hashSync, compareSync, genSaltSync } from "bcrypt";
+import config from "../config/env.js"
 import jwt from "jsonwebtoken";
- export const JWT_SECRET = "sapopepe";
+ const JWT_SECRET = config.jwt_secret
 
 export const createHash = (password) => {
   const salt = genSaltSync(10);

@@ -11,4 +11,9 @@ const createUser = async (newUser) => {
 const userLogin = async (email) => {
     return await usersModel.findOne({ email });
 };
-export default { getUsersAll, createUser, userLogin};
+
+const getUserById = async (userId) => {
+    return await usersModel.findById(userId).populate("cart");
+};
+
+export default { getUsersAll, createUser, userLogin, getUserById};

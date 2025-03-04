@@ -2,7 +2,6 @@ import productsService from "../services/products.service.js";
 
 const getProductsAll =  async (req, res) => {
     try {
-        /*const products = await productModel.find();*/
         const products = await productsService.getProductsAll();
 
         if (products.length === 0) {
@@ -46,7 +45,6 @@ const product = await productsService.createProduct(newProduct);
         product,
       });
     } catch (error) {
-      // Manejo de errores
       console.error("Error al crear el producto:", error);
       return res.status(500).json({
         status: "Error",
@@ -70,7 +68,6 @@ const product = await productsService.createProduct(newProduct);
       }
   
       // Buscar el producto por ID
-      /*const product = await productModel.findById(id);*/
       const product = await productsService.getProductById(id);
       
       // Si el producto no existe, devolver un error 404
@@ -92,7 +89,6 @@ const product = await productsService.createProduct(newProduct);
         thumbnail: thumbnail || product.thumbnail,
     };
   
-/*await productModel.create(newProduct);*/
 const updatedProduct = await productsService.updateProduct(id, updatedFields);
   
       // Enviar una respuesta exitosa con el producto actualizado
@@ -102,7 +98,6 @@ const updatedProduct = await productsService.updateProduct(id, updatedFields);
         product: updatedProduct,
       });
     } catch (error) {
-      // Manejo de errores generales
       console.error("Error al actualizar el producto:", error);
       return res.status(500).json({
         status: "Error",
@@ -113,21 +108,18 @@ const updatedProduct = await productsService.updateProduct(id, updatedFields);
   };
 
   const deleteProduct = async (req, res) => {
-    const { id } = req.params;  // Obtener el id del producto desde los parámetros de la URL
+    const { id } = req.params;
   
     try {
       // Buscar el producto por su ID y eliminarlo
       const product = await productsService.deleteProduct(id);
   
-      // Si el producto no existe, devolver un error
       if (!product) {
         return res.status(404).json({ status: "Error", message: "Producto no encontrado" });
       }
   
-      // Respuesta de éxito
       res.status(200).json({ status: "Success", message: "Producto eliminado correctamente" });
     } catch (error) {
-      // En caso de un error en la base de datos
       res.status(500).json({ status: "Error", message: "Hubo un error al eliminar el producto", error: error.message });
     }
   };

@@ -10,7 +10,6 @@ import userRoutes from './routes/users.routes.js'
 import viewRoutes from "./routes/views.routes.js";
 import connectDb from "./config/database.js";
 
-const signCookie = "sign-cookie";
 
 //settings
 const app = express();
@@ -23,7 +22,8 @@ app.use(express.static('public'));
 // middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser(signCookie));
+/*app.use(cookieParser(signCookie));*/
+app.use(cookieParser(config.sign));
 //passport
 initializePassport();
 app.use(passport.initialize());

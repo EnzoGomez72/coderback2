@@ -1,5 +1,6 @@
 import { isValidPassword, createHash, createToken, verifyToken } from "../utils/index.js";
 import usersService from "../services/users.service.js";
+import cartsService from "../services/carts.service.js";
 
 const getUsersAll =  async (req, res) => {
     try {
@@ -29,13 +30,16 @@ const createUser = async (req, res) => {
         return res.status(400).json({ status: "Error", message: "La contraseña debe tener al menos 6 caracteres" });
     }
 
+    const newCart = await cartsService.createCart();
+
     // Crear el nuevo usuario
     const newUser = {
         first_name,
         last_name,
         email,
         age,
-      password: createHash(password), // Hashear la contraseña
+        password: createHash(password),
+        cart: newCart._id, // Hashear la contraseña
     };
 
     // Agregar el rol si está presente
@@ -93,14 +97,15 @@ const userLogin = async (req, res) => {
     }
 };
 
-const getCurrentUser = (req, res) => {
-    try {
-        const user = { ...req.user._doc };
-        res.status(200).json({ user });  
-    } catch (error) {
-        console.error('Error al procesar la solicitud del usuario actual:', error);
-        res.status(500).json({ message: 'Hubo un error al procesar tu solicitud. Por favor, intenta nuevamente más tarde.' });
-    }
-    };
+
+    const getCurrentUser = async (req, res) => {
+        try {
+            const user =  await usersService.getUserById(req.user._id);
+            res.status(200).json({ user });  
+        } catch (error) {
+            console.error('Error al procesar la solicitud del usuario actual:', error);
+            res.status(500).json({ message: 'Hubo un error al procesar tu solicitud. Por favor, intenta nuevamente más tarde.' });
+        }
+        };
 
     export default {getUsersAll, createUser, userLogin, getCurrentUser};

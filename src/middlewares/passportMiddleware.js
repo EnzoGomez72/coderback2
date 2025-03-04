@@ -1,9 +1,9 @@
 import passport from "passport";
-
+import config from "../config/env.js"
+ const JWT_SECRET = config.jwt_secret
 import { Strategy as GoogleStrategy } from "passport-google-oauth2";
 import userModel from "../models/users.model.js";
 import jwt from "passport-jwt";
-import { JWT_SECRET } from "../utils/index.js";
 const JWTStrategy = jwt.Strategy;
 const ExtractJWT = jwt.ExtractJwt;
 
