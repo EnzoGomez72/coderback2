@@ -1,11 +1,19 @@
-import cartModel from "../models/carts.model.js";
+import CartsRepository from "../repository/carts.repository.js";
 
 const createCart = async () => {
-    const newCart = new cartModel({ products: [] });
-    return await newCart.save();
+    return await CartsRepository.createCart();
 };
 
-const getCartById = async (cid) => {
-    return await cartModel.findById(cid);
+const getCartById = async (cartId) => {
+    return await CartsRepository.getCartById(cartId);
 };
-export default {createCart, getCartById};
+
+const updateCart = async (cartId, updatedFields) => {
+    return await CartsRepository.updateCart(cartId, updatedFields);
+};
+
+const deleteCart = async (cartId) => {
+    return await CartsRepository.deleteCart(cartId);
+};
+
+export default { createCart, getCartById, updateCart, deleteCart };

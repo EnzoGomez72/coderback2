@@ -1,14 +1,18 @@
-import ticketModel from "../models/ticket.model.js";
+import TicketsRepository from "../repository/tickets.repository.js";
 
 const getTickets = async () => {
-    return await ticketModel.find();
+    return await TicketsRepository.getTickets();
+};
+
+const getTicketById = async (ticketId) => {
+    return await TicketsRepository.getTicketById(ticketId);
 };
 
 const createTicket = async ({ amount, purchaser }) => {
     try {
-        const newTicket = await ticketModel.create({
+        const newTicket = await TicketsRepository.createTicket({
             amount,
-            purchaser
+            purchaser,
         });
         return newTicket;
     } catch (error) {
@@ -17,8 +21,4 @@ const createTicket = async ({ amount, purchaser }) => {
     }
 };
 
-const getTicketById = async (id) => {
-    return await ticketModel.findById(id);
-};
-
-export default { getTickets, createTicket, getTicketById };
+export default { getTickets, getTicketById, createTicket };

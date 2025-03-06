@@ -1,19 +1,19 @@
-import usersModel from "../models/users.model.js";
+import UsersRepository from "../repository/users.repository.js";
 
-const getUsersAll = ()=> {
-    return usersModel.find()
-}
+const getUsersAll = async () => {
+    return await UsersRepository.getUsersAll();
+};
 
 const createUser = async (newUser) => {
-    return await usersModel.create(newUser);
+    return await UsersRepository.createUser(newUser);
 };
 
 const userLogin = async (email) => {
-    return await usersModel.findOne({ email });
+    return await UsersRepository.userLogin(email);
 };
 
 const getUserById = async (userId) => {
-    return await usersModel.findById(userId).populate("cart");
+    return await UsersRepository.getUserById(userId);
 };
 
-export default { getUsersAll, createUser, userLogin, getUserById};
+export default { getUsersAll, createUser, userLogin, getUserById };

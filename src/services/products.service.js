@@ -1,22 +1,23 @@
-import productModel from "../models/products.model.js";
+import ProductsRepository from "../repository/products.repository.js";
 
-const getProductsAll = ()=> {
-    return productModel.find()
+const getProductsAll = async () => {
+    return await ProductsRepository.getProductsAll();
+};
+
+const getProductById = async (productId) => {
+    return await ProductsRepository.getProductById(productId);
 };
 
 const createProduct = async (newProduct) => {
-    return await productModel.create(newProduct);
+    return await ProductsRepository.createProduct(newProduct);
 };
 
-const getProductById = async (id) => {
-    return await productModel.findById(id);
+const updateProduct = async (productId, updatedFields) => {
+    return await ProductsRepository.updateProduct(productId, updatedFields);
 };
 
-const updateProduct = async (id, updatedFields) => {
-    return await productModel.findByIdAndUpdate(id, updatedFields, { new: true });
+const deleteProduct = async (productId) => {
+    return await ProductsRepository.deleteProduct(productId);
 };
 
-const deleteProduct = async (id) => {
-    return await productModel.findByIdAndDelete(id);
-};
-export default {getProductsAll, createProduct, getProductById, updateProduct, deleteProduct};
+export default { getProductsAll, getProductById, createProduct, updateProduct, deleteProduct };
